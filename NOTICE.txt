@@ -1,0 +1,14 @@
+   =========================================================================
+   ==  NOTICE file corresponding to the section 4 d of                    ==
+   ==  the Apache License, Version 2.0,                                   ==
+   ==  in this case for the Apache Maven distribution.                    ==
+   =========================================================================
+
+MongoDB Maven Plugin
+Copyright 2011 Stephen Connolly
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software (MongoDB) developed by
+10gen, Inc. (http://www.10gen.com/).
