@@ -45,6 +45,7 @@ import java.util.logging.Logger;
  * Starts a MongoDB instance.
  *
  * @goal start
+ * @phase pre-integration-test
  */
 public class StartMongoMojo extends AbstractMongoMojo {
 

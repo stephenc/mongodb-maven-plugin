@@ -29,6 +29,7 @@ import java.util.Set;
  * Stops a MongoDB instance previously started with {@code start}.
  *
  * @goal stop
+ * @phase post-integration-test
  */
 public class StopMongoMojo extends AbstractMongoMojo {
 
