@@ -84,6 +84,26 @@ public class StartMongoMojo extends AbstractMongoMojo {
      */
     private boolean auth;
 
+    /**
+     * Where to put mongo's log output.
+     *
+     * @parameter expression="${mongodb.logPath}" default-value="${project.build.directory}/mongodb.log"
+     */
+    private File logPath;
+
+    /**
+     * Whether to append to an existing log.
+     * @parameter expression="${mongodb.logAppend}" default-value="true"
+     */
+    private boolean logAppend;
+
+    /**
+     * Additional command-line parameters for the mongod command line
+     * @parameter
+     */
+    private String[] additionalArguments;
+
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().info("Skipping mongodb: mongodb.skip==true");
@@ -151,6 +171,12 @@ public class StartMongoMojo extends AbstractMongoMojo {
             commandLine.addArgument("--quiet");
         }
 
+        commandLine.addArgument("--logpath");
+        commandLine.addArgument(logPath.getAbsolutePath());
+        if (logAppend) {
+            commandLine.addArgument("--logappend");
+        }
+
         commandLine.addArgument(auth ? "--auth" : "--noauth");
 
         commandLine.addArgument("--port");
@@ -158,6 +184,12 @@ public class StartMongoMojo extends AbstractMongoMojo {
 
         commandLine.addArgument("--dbpath");
         commandLine.addArgument(databaseRoot.getAbsolutePath());
+
+        if (additionalArguments != null) {
+            for (String aa : additionalArguments) {
+                commandLine.addArgument(aa);
+            }
+        }
 
         Executor exec = new DefaultExecutor();
         DefaultExecuteResultHandler execHandler = new DefaultExecuteResultHandler();
