@@ -28,6 +28,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.Os;
@@ -62,6 +63,13 @@ public class StartMongoMojo extends AbstractMongoMojo {
      * @parameter expression="${mongodb.databaseRoot}" default-value="${project.build.directory}/mongodb"
      */
     private File databaseRoot;
+
+    /**
+     * Whether to clean (e.g. remove) the database root before launching.
+     *
+     * @parameter expression="${mondodb.cleanDatabaseRoot}
+     */
+    private boolean cleanDatabaseRoot;
 
     /**
      * The port to start mongodb on.
@@ -159,6 +167,14 @@ public class StartMongoMojo extends AbstractMongoMojo {
         }
         if (databaseRoot.isFile()) {
             throw new MojoExecutionException("Database root " + databaseRoot + " is a file and not a directory");
+        }
+        if (databaseRoot.isDirectory() && cleanDatabaseRoot) {
+            getLog().info("Cleaning database root directory: " + databaseRoot);
+            try {
+                FileUtils.deleteDirectory(databaseRoot);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not clean database root directory " + databaseRoot, e);
+            }
         }
         if (!databaseRoot.isDirectory()) {
             getLog().debug("Creating database root directory: " + databaseRoot);
