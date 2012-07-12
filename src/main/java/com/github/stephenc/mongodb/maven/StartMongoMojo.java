@@ -28,6 +28,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.LogOutputStream;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.Os;
@@ -64,6 +65,13 @@ public class StartMongoMojo extends AbstractMongoMojo {
     private File databaseRoot;
 
     /**
+     * Whether to clean (e.g. remove) the database root before launching.
+     *
+     * @parameter expression="${mondodb.cleanDatabaseRoot}
+     */
+    private boolean cleanDatabaseRoot;
+
+    /**
      * The port to start mongodb on.
      *
      * @parameter expression="${mongodb.port}" default-value="27017"
@@ -83,6 +91,26 @@ public class StartMongoMojo extends AbstractMongoMojo {
      * @parameter expression="${mongodb.auth}" default-value="false"
      */
     private boolean auth;
+
+    /**
+     * Where to put mongo's log output.
+     *
+     * @parameter expression="${mongodb.logPath}" default-value="${project.build.directory}/mongodb.log"
+     */
+    private File logPath;
+
+    /**
+     * Whether to append to an existing log.
+     * @parameter expression="${mongodb.logAppend}" default-value="true"
+     */
+    private boolean logAppend;
+
+    /**
+     * Additional command-line parameters for the mongod command line
+     * @parameter
+     */
+    private String[] additionalArguments;
+
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -140,6 +168,14 @@ public class StartMongoMojo extends AbstractMongoMojo {
         if (databaseRoot.isFile()) {
             throw new MojoExecutionException("Database root " + databaseRoot + " is a file and not a directory");
         }
+        if (databaseRoot.isDirectory() && cleanDatabaseRoot) {
+            getLog().info("Cleaning database root directory: " + databaseRoot);
+            try {
+                FileUtils.deleteDirectory(databaseRoot);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not clean database root directory " + databaseRoot, e);
+            }
+        }
         if (!databaseRoot.isDirectory()) {
             getLog().debug("Creating database root directory: " + databaseRoot);
             if (!databaseRoot.mkdirs()) {
@@ -151,6 +187,12 @@ public class StartMongoMojo extends AbstractMongoMojo {
             commandLine.addArgument("--quiet");
         }
 
+        commandLine.addArgument("--logpath");
+        commandLine.addArgument(logPath.getAbsolutePath());
+        if (logAppend) {
+            commandLine.addArgument("--logappend");
+        }
+
         commandLine.addArgument(auth ? "--auth" : "--noauth");
 
         commandLine.addArgument("--port");
@@ -158,6 +200,12 @@ public class StartMongoMojo extends AbstractMongoMojo {
 
         commandLine.addArgument("--dbpath");
         commandLine.addArgument(databaseRoot.getAbsolutePath());
+
+        if (additionalArguments != null) {
+            for (String aa : additionalArguments) {
+                commandLine.addArgument(aa);
+            }
+        }
 
         Executor exec = new DefaultExecutor();
         DefaultExecuteResultHandler execHandler = new DefaultExecuteResultHandler();
