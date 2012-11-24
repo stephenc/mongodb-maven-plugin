@@ -27,7 +27,7 @@
 
   <groupId>com.github.stephenc.mongodb</groupId>
   <artifactId>mongodb-maven-plugin</artifactId>
-  <version>2.0.2-3-basis-SNAPSHOT</version>
+  <version>2.2.1-2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>MongoDB Maven Plugin</name>
@@ -59,6 +59,7 @@
     <connection>scm:git:git://github.com/stephenc/mongodb-maven-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:stephenc/mongodb-maven-plugin.git</developerConnection>
     <url>http://github.com/stephenc/mongodb-maven-plugin/tree/master/</url>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>github</system>
