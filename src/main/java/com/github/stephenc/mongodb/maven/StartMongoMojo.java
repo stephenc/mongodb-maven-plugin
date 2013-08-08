@@ -196,6 +196,13 @@ public class StartMongoMojo extends AbstractMongoMojo {
         commandLine.addArgument(auth ? "--auth" : "--noauth");
 
         commandLine.addArgument("--port");
+        try {
+            // this is a hack to force mongo to use a project property
+            // that we are randomly setting at run-time (reserve-network-port)
+            port = Integer.parseInt(project.getProperties().getProperty("mongodb.port"));
+        } catch (NumberFormatException e) {
+            // no or bad project property
+        }
         commandLine.addArgument(Integer.toString(port));
 
         commandLine.addArgument("--dbpath");
